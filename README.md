@@ -2,7 +2,7 @@
 
 # 🖐️ HAND//TRACE
 
-### AR tangan real-time di browser — kamera depan membaca jarimu, efek glitch neon mengikutinya.
+### Mode LUMEN — sihir cahaya real-time di browser: lukis di udara, ciptakan kupu-kupu, putar galaksi di telapakmu.
 
 **[▶ Coba Langsung](https://ksatriabintangsamudra.my.id/handtrace/)**
 
@@ -12,14 +12,15 @@
 
 Buka halamannya, izinkan kamera depan, tunjukkan tangan — **21 titik sendi** per tangan dilacak real-time (hingga 2 tangan) dan efek bereaksi ke gesturmu:
 
-| Gestur | Efek |
+| Gestur | Yang kamu ciptakan |
 |---|---|
-| 🤏 **Pinch** (jempol + telunjuk) | Bola energi muncul di antara jari — geser untuk memindahkan, tahan untuk mengisi daya, **lepaskan = meledak** |
-| ✋ **Telapak terbuka** | Perisai hologram heksagon berputar mengikuti telapak |
-| ✊ **Mengepal** | Overload: layar ber-glitch (RGB split, slice shift, noise) |
-| 🙌 **Dua tangan** | Petir menyambung antar ujung telunjuk |
+| ☝️ **Telunjuk** | **Melukis tinta cahaya** di udara — goresan kaligrafi bercahaya yang tinggal, berganti rona, dan berdenyut |
+| 🤏 **Pinch** (jempol + telunjuk) | **Menetaskan kupu-kupu cahaya** — makin lama ditahan makin banyak; mereka terbang dan mengikuti telunjukmu |
+| ✋ **Telapak terbuka** | **Galaksi mini** berputar di atas telapak — miring mengikuti kemiringan tanganmu |
+| ✊ **Mengepal** | **Gravitasi** — menghisap tinta, kupu-kupu, dan partikel; buka tangan = **NOVA** (ledakan cahaya yang melahirkan kupu-kupu baru) |
+| 🙌 **Dua tangan** | **Benang aurora** — lima helai cahaya menghubungkan kelima pasang ujung jari |
 
-Plus: kerangka tangan neon dengan ghost kromatik, jejak cahaya di ujung jari, partikel, scanline CRT, HUD telemetri (FPS · jumlah tangan · latensi inferensi), tombol jepret PNG, dan **mode demo** (tangan sintetis) bila kamera tidak tersedia.
+Plus: tangan digambar sebagai **konstelasi bintang**, jejak komet di ujung jari, pelacakan di-*smoothing* adaptif (bebas jitter), glow ber-cache sprite (60 fps tanpa `shadowBlur`), HUD telemetri, tombol **Jepret** (PNG) & **Hapus**, dan **mode demo** (tangan sintetis) bila kamera tidak tersedia.
 
 ## Teknologi
 

@@ -3,82 +3,74 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>HANDTRACE — AR Tangan Glitch</title>
-<meta name="description" content="AR tangan real-time di browser: kamera depan membaca 21 titik sendi tanganmu (MediaPipe), lalu efek glitch neon mengikuti gerakan jari — bola energi saat pinch, perisai hologram di telapak, overload saat mengepal, dan petir antar dua tangan.">
-<meta name="theme-color" content="#03060d">
-<meta property="og:title" content="HANDTRACE — AR Tangan Glitch">
-<meta property="og:description" content="Gerakkan jarimu di depan kamera — efek glitch neon mengikutinya. Hand-tracking langsung di browser, tanpa instal.">
+<title>HANDTRACE · LUMEN — Sihir Cahaya di Tanganmu</title>
+<meta name="description" content="AR tangan real-time di browser, mode LUMEN: melukis tinta cahaya di udara dengan telunjuk, menetaskan kupu-kupu cahaya dengan pinch, galaksi mini di telapak, gravitasi di kepalan, dan benang aurora antar dua tangan. 100% on-device.">
+<meta name="theme-color" content="#04070e">
+<meta property="og:title" content="HANDTRACE · LUMEN — Sihir Cahaya di Tanganmu">
+<meta property="og:description" content="Lukis cahaya di udara, ciptakan kupu-kupu, putar galaksi di telapakmu — semua lewat kamera depan, langsung di browser.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🖐️</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Chakra+Petch:wght@600;700&display=swap" rel="stylesheet">
 <style>
-:root{ --cy:#00f0ff; --mg:#ff2bd6; --lm:#b6ff2b; --bg:#03060d; --mono:"Share Tech Mono",ui-monospace,monospace; --disp:"Chakra Petch",var(--mono); }
+:root{ --a1:#7ce8ff; --a2:#b18cff; --a3:#ff9ad5; --a4:#8affd9; --gold:#ffd98a; --bg:#04070e;
+  --mono:"Share Tech Mono",ui-monospace,monospace; --disp:"Chakra Petch",var(--mono); }
 *{box-sizing:border-box;margin:0}
 html,body{height:100%}
-body{background:var(--bg);color:#cfeeff;font-family:var(--mono);overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:#dcecff;font-family:var(--mono);overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 video{position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0}
-#cv{position:fixed;inset:0;width:100vw;height:100dvh;display:block;background:#000;touch-action:none;cursor:crosshair}
-.frame{position:fixed;inset:10px;border:1px solid rgba(0,240,255,.18);pointer-events:none;z-index:4}
-.frame i{position:absolute;width:26px;height:26px;border:2px solid var(--cy);filter:drop-shadow(0 0 6px rgba(0,240,255,.8))}
-.frame i:nth-child(1){top:-2px;left:-2px;border-right:0;border-bottom:0}
-.frame i:nth-child(2){top:-2px;right:-2px;border-left:0;border-bottom:0}
-.frame i:nth-child(3){bottom:-2px;left:-2px;border-right:0;border-top:0}
-.frame i:nth-child(4){bottom:-2px;right:-2px;border-left:0;border-top:0}
-.hud{position:fixed;z-index:5;pointer-events:none;text-shadow:0 0 8px rgba(0,240,255,.55);font-size:12px;letter-spacing:.08em;line-height:1.7}
-.hud b{color:var(--cy)}
-.hud .dim{color:#5f7f96}
+#cv{position:fixed;inset:0;display:block;background:#000;touch-action:none;cursor:crosshair}
+.hud{position:fixed;z-index:5;pointer-events:none;font-size:12px;letter-spacing:.08em;line-height:1.75;
+  text-shadow:0 1px 10px rgba(4,7,14,.9)}
+.hud b{color:var(--a1)}
+.hud .dim{color:#6f8aa6}
 #hudTL{top:22px;left:26px}
-#hudTL .logo{font-family:var(--disp);font-weight:700;font-size:19px;color:#fff;letter-spacing:.18em}
-#hudTL .logo span{color:var(--cy)}
+#hudTL .logo{font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:.18em;
+  background:linear-gradient(90deg,var(--a1),var(--a2) 55%,var(--a3));-webkit-background-clip:text;background-clip:text;color:transparent}
+#hudTL .sub{color:#6f8aa6}
+#hudTL .sub b{color:var(--a4)}
 #hudTR{top:22px;right:26px;text-align:right}
-#hudBL{bottom:20px;left:26px}
+#hudBL{bottom:20px;left:26px;font-size:11.5px}
 #gest{position:fixed;left:50%;top:26px;transform:translateX(-50%);z-index:5;pointer-events:none;
-  font-family:var(--disp);font-weight:700;font-size:clamp(15px,2.6vw,22px);letter-spacing:.22em;color:#fff;
-  padding:8px 22px;border:1px solid rgba(0,240,255,.35);background:rgba(3,10,18,.5);backdrop-filter:blur(4px);
-  text-shadow:0 0 12px var(--cy); display:none}
-#gest.on{display:block;animation:gpop .18s steps(3)}
-@keyframes gpop{0%{transform:translateX(-50%) skewX(14deg);opacity:.2}100%{transform:translateX(-50%);opacity:1}}
+  font-family:var(--disp);font-weight:700;font-size:clamp(14px,2.4vw,20px);letter-spacing:.24em;color:#fff;
+  padding:9px 26px;border:1px solid rgba(124,232,255,.35);border-radius:999px;background:rgba(4,10,18,.45);
+  backdrop-filter:blur(8px);display:none}
+#gest.on{display:block;animation:gpop .3s cubic-bezier(.2,1.6,.4,1)}
+@keyframes gpop{0%{transform:translateX(-50%) scale(.85);opacity:0}100%{transform:translateX(-50%) scale(1);opacity:1}}
 .dock{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);display:flex;gap:10px;z-index:6}
-.btn{pointer-events:auto;font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;color:var(--cy);
-  background:rgba(4,14,24,.72);border:1px solid rgba(0,240,255,.45);padding:11px 18px;cursor:pointer;
-  text-transform:uppercase;transition:all .15s;backdrop-filter:blur(6px)}
-.btn:hover{background:rgba(0,240,255,.14);box-shadow:0 0 18px rgba(0,240,255,.35)}
-.btn.on{color:#04121c;background:var(--cy);box-shadow:0 0 22px rgba(0,240,255,.6)}
-.btn.mg{color:var(--mg);border-color:rgba(255,43,214,.5)}
-.btn.mg:hover{background:rgba(255,43,214,.14);box-shadow:0 0 18px rgba(255,43,214,.35)}
-/* intro */
+.btn{pointer-events:auto;font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;color:#dcecff;
+  background:rgba(8,16,28,.66);border:1px solid rgba(124,232,255,.3);border-radius:999px;padding:11px 20px;
+  cursor:pointer;text-transform:uppercase;transition:all .18s;backdrop-filter:blur(8px)}
+.btn:hover{border-color:var(--a1);box-shadow:0 0 22px rgba(124,232,255,.28);transform:translateY(-1px)}
+.btn.on{color:#04121c;background:linear-gradient(90deg,var(--a1),var(--a4));border-color:transparent;box-shadow:0 0 26px rgba(124,232,255,.5)}
+.btn.vi{border-color:rgba(177,140,255,.4)}
+.btn.vi:hover{border-color:var(--a2);box-shadow:0 0 22px rgba(177,140,255,.3)}
 #intro{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
-  background:radial-gradient(90% 70% at 50% 20%, #071427, var(--bg) 70%);text-align:center;padding:30px}
-#intro .big{font-family:var(--disp);font-weight:700;font-size:clamp(30px,7vw,54px);letter-spacing:.22em;color:#fff;
-  text-shadow:0 0 18px rgba(0,240,255,.8)}
-#intro .big span{color:var(--cy)}
-#intro p{max-width:520px;color:#8fb7cc;font-size:13.5px;line-height:1.8;letter-spacing:.05em}
-#intro p b{color:#fff}
-#intro .go{margin-top:8px;font-size:15px;padding:15px 34px}
-#intro .alt{font-size:11.5px;color:#5f7f96}
-#intro .alt button{background:none;border:0;color:var(--mg);font-family:inherit;font-size:inherit;cursor:pointer;
+  background:radial-gradient(90% 70% at 50% 18%, #0a1830, var(--bg) 72%);text-align:center;padding:30px}
+#intro .big{font-family:var(--disp);font-weight:700;font-size:clamp(30px,7vw,54px);letter-spacing:.22em;
+  background:linear-gradient(90deg,var(--a1),var(--a2) 45%,var(--a3) 80%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 24px rgba(124,232,255,.35))}
+#intro .tag{font-size:12px;letter-spacing:.5em;color:#6f8aa6;margin-top:-8px}
+#intro p{max-width:560px;color:#9db8d4;font-size:13.5px;line-height:1.9;letter-spacing:.04em}
+#intro p b{color:#fff;font-weight:400}
+#intro .go{margin-top:8px;font-size:15px;padding:15px 36px;color:#04121c;background:linear-gradient(90deg,var(--a1),var(--a4));border-color:transparent}
+#intro .go:hover{box-shadow:0 0 34px rgba(124,232,255,.55)}
+#intro .alt{font-size:11.5px;color:#6f8aa6}
+#intro .alt button{background:none;border:0;color:var(--a2);font-family:inherit;font-size:inherit;cursor:pointer;
   text-decoration:underline;letter-spacing:.1em;pointer-events:auto}
-#stat{font-size:11.5px;color:#5f7f96;letter-spacing:.12em;min-height:16px}
-.glitchtxt{position:relative;display:inline-block}
-.glitchtxt::before,.glitchtxt::after{content:attr(data-t);position:absolute;left:0;top:0;width:100%;overflow:hidden}
-.glitchtxt::before{color:var(--mg);transform:translate(-2px,-1px);clip-path:inset(0 0 55% 0);animation:gl1 2.4s steps(2) infinite}
-.glitchtxt::after{color:var(--cy);transform:translate(2px,1px);clip-path:inset(55% 0 0 0);animation:gl2 3.1s steps(3) infinite}
-@keyframes gl1{0%,92%{opacity:0}94%,100%{opacity:.85}}
-@keyframes gl2{0%,88%{opacity:0}90%,96%{opacity:.85}100%{opacity:0}}
-#banner{position:fixed;left:50%;top:70px;transform:translateX(-50%);z-index:7;display:none;
-  font-size:12px;color:#ffd23e;border:1px solid rgba(255,210,62,.5);background:rgba(30,20,4,.7);padding:8px 16px;letter-spacing:.08em}
-@media (max-width:640px){ #hudTR,#hudBL{display:none} .frame{inset:6px} }
+#stat{font-size:11.5px;color:#6f8aa6;letter-spacing:.12em;min-height:16px}
+#banner{position:fixed;left:50%;top:74px;transform:translateX(-50%);z-index:7;display:none;
+  font-size:12px;color:var(--gold);border:1px solid rgba(255,217,138,.45);border-radius:999px;background:rgba(26,20,6,.7);padding:8px 18px;letter-spacing:.08em}
+@media (max-width:640px){ #hudTR,#hudBL{display:none} }
 </style>
 </head>
 <body>
   <video id="cam" playsinline muted autoplay></video>
   <canvas id="cv"></canvas>
-  <div class="frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 
   <div class="hud" id="hudTL">
-    <div class="logo glitchtxt" data-t="HAND//TRACE">HAND<span>//</span>TRACE</div>
-    <div class="dim">vision.module <b id="hstat">boot…</b></div>
+    <div class="logo">HAND//TRACE</div>
+    <div class="sub">mode <b>LUMEN</b> · <span id="hstat">boot…</span></div>
   </div>
   <div class="hud" id="hudTR">
     <div><span class="dim">FPS</span> <b id="hfps">--</b></div>
@@ -86,25 +78,32 @@ video{position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0}
     <div><span class="dim">INFER</span> <b id="hms">--</b><span class="dim">ms</span></div>
   </div>
   <div class="hud" id="hudBL">
-    <div class="dim">✊ kepal = overload · 🤏 pinch = bola energi · ✋ buka = perisai · 🙌 2 tangan = petir</div>
+    <div class="dim">☝️ lukis cahaya · 🤏 cipta kupu-kupu · ✋ galaksi telapak · ✊ gravitasi → nova · 🙌 benang aurora</div>
   </div>
   <div id="gest"></div>
   <div id="banner"></div>
 
   <div class="dock">
     <button class="btn" id="bsnap" type="button">⭳ Jepret</button>
-    <button class="btn mg" id="bdemo" type="button">Demo</button>
+    <button class="btn vi" id="bclear" type="button">✕ Hapus</button>
+    <button class="btn vi" id="bdemo" type="button">Demo</button>
   </div>
 
   <div id="intro">
-    <div class="big glitchtxt" data-t="HAND//TRACE">HAND<span>//</span>TRACE</div>
-    <p>AR tangan <b>real-time di browser</b>. Kamera depan membaca <b>21 titik sendi</b> tanganmu, lalu efek glitch neon mengikuti tiap gerakan jari: <b>🤏 pinch</b> memunculkan bola energi (lepaskan = meledak), <b>✋ telapak terbuka</b> = perisai hologram, <b>✊ mengepal</b> = overload glitch, <b>dua tangan</b> = petir antar telunjuk.</p>
+    <div class="big">HAND//TRACE</div>
+    <div class="tag">MODE · LUMEN</div>
+    <p><b>Menciptalah dengan tanganmu.</b> Kamera depan membaca 21 titik sendi tiap tangan, lalu:
+    <b>☝️ telunjuk</b> melukis tinta cahaya yang tinggal di udara ·
+    <b>🤏 pinch</b> menetaskan kupu-kupu cahaya yang mengikuti jarimu ·
+    <b>✋ telapak terbuka</b> memutar galaksi mini (miring mengikuti tanganmu) ·
+    <b>✊ kepalan</b> menjadi gravitasi yang menghisap ciptaanmu — buka tanganmu, dan semuanya meledak jadi <b>nova</b> ·
+    <b>🙌 dua tangan</b> merentangkan benang aurora.</p>
     <button class="btn go" id="bstart" type="button">▶ Aktifkan Kamera</button>
     <div class="alt">tanpa kamera? <button id="bdemostart" type="button">jalankan mode demo</button></div>
     <div id="stat"></div>
-    <p class="alt" style="max-width:460px">Semua pemrosesan terjadi <b style="color:#8fb7cc">di perangkatmu</b> — video tidak pernah dikirim ke mana pun.</p>
+    <p class="alt" style="max-width:460px">Semua pemrosesan terjadi <b style="color:#9db8d4">di perangkatmu</b> — video tidak pernah dikirim ke mana pun.</p>
   </div>
 
-<script type="module" src="./app.js?v=1"></script>
+<script type="module" src="./app.js?v=2"></script>
 </body>
 </html>
