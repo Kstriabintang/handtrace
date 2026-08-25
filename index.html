@@ -61,6 +61,12 @@ video{position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0}
 #stat{font-size:11.5px;color:#6f8aa6;letter-spacing:.12em;min-height:16px}
 #banner{position:fixed;left:50%;top:74px;transform:translateX(-50%);z-index:7;display:none;
   font-size:12px;color:var(--gold);border:1px solid rgba(255,217,138,.45);border-radius:999px;background:rgba(26,20,6,.7);padding:8px 18px;letter-spacing:.08em}
+#console{position:fixed;right:26px;bottom:20px;z-index:5;pointer-events:none;text-align:right;
+  font-size:10.5px;line-height:1.75;letter-spacing:.05em;color:#39ff78;opacity:.8;
+  text-shadow:0 1px 8px rgba(4,7,14,.9)}
+#console i{color:#3f7a56;font-style:normal}
+#console b{color:#b9ffd0;font-weight:400}
+@media (max-width:640px){ #console{display:none} }
 @media (max-width:640px){ #hudTR,#hudBL{display:none} }
 </style>
 </head>
@@ -70,7 +76,7 @@ video{position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0}
 
   <div class="hud" id="hudTL">
     <div class="logo">HAND//TRACE</div>
-    <div class="sub">mode <b>LUMEN</b> · <span id="hstat">boot…</span></div>
+    <div class="sub">mode <b>LUMEN//HX</b> · <span id="hstat">boot…</span></div>
   </div>
   <div class="hud" id="hudTR">
     <div><span class="dim">FPS</span> <b id="hfps">--</b></div>
@@ -82,6 +88,7 @@ video{position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0}
   </div>
   <div id="gest"></div>
   <div id="banner"></div>
+  <div id="console" aria-hidden="true"></div>
 
   <div class="dock">
     <button class="btn" id="bsnap" type="button">⭳ Jepret</button>
@@ -91,7 +98,7 @@ video{position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0}
 
   <div id="intro">
     <div class="big">HAND//TRACE</div>
-    <div class="tag">MODE · LUMEN</div>
+    <div class="tag">MODE · LUMEN //HX</div>
     <p><b>Menciptalah dengan tanganmu.</b> Kamera depan membaca 21 titik sendi tiap tangan, lalu:
     <b>☝️ telunjuk</b> melukis tinta cahaya yang tinggal di udara ·
     <b>🤏 pinch</b> menetaskan kupu-kupu cahaya yang mengikuti jarimu ·
@@ -104,6 +111,6 @@ video{position:fixed;left:-9999px;top:0;width:2px;height:2px;opacity:0}
     <p class="alt" style="max-width:460px">Semua pemrosesan terjadi <b style="color:#9db8d4">di perangkatmu</b> — video tidak pernah dikirim ke mana pun.</p>
   </div>
 
-<script type="module" src="./app.js?v=2"></script>
+<script type="module" src="./app.js?v=3"></script>
 </body>
 </html>

@@ -20,7 +20,7 @@ Buka halamannya, izinkan kamera depan, tunjukkan tangan — **21 titik sendi** p
 | ✊ **Mengepal** | **Gravitasi** — menghisap tinta, kupu-kupu, dan partikel; buka tangan = **NOVA** (ledakan cahaya yang melahirkan kupu-kupu baru) |
 | 🙌 **Dua tangan** | **Benang aurora** — lima helai cahaya menghubungkan kelima pasang ujung jari |
 
-Plus: tangan digambar sebagai **konstelasi bintang**, jejak komet di ujung jari, pelacakan di-*smoothing* adaptif (bebas jitter), glow ber-cache sprite (60 fps tanpa `shadowBlur`), HUD telemetri, tombol **Jepret** (PNG) & **Hapus**, dan **mode demo** (tangan sintetis) bila kamera tidak tersedia.
+Plus sentuhan **//HX**: hujan digital katakana lembut di latar, **konsol log live** (LOCK tangan · event gesture · nova), animasi *lock-on* saat tangan terdeteksi, cincin rune berputar di pergelangan, dan koordinat telunjuk dalam **hex**. Tangan digambar sebagai **konstelasi bintang** dengan jejak komet; pelacakan memakai filter responsif + **prediksi kecepatan** (efek menempel di jari, bukan tertinggal); glow ber-cache sprite (60 fps tanpa `shadowBlur`); tombol **Jepret** (PNG) & **Hapus**; **mode demo** bila kamera tidak tersedia.
 
 ## Teknologi
 

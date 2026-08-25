@@ -77,6 +77,14 @@ const fists = [null, null];
 const pinchSt = [null, null];
 let drawSt = [null, null];
 const pointFrames = [0, 0];
+const lockAnim = new Map();  // key -> waktu terkunci (animasi lock-on)
+const LOGQ = [];
+function clog(msg) {
+  const c = el('console'); if (!c) return;
+  LOGQ.push('<i>[' + S.t.toFixed(1).padStart(6, '0') + ']</i> ' + msg);
+  if (LOGQ.length > 7) LOGQ.shift();
+  c.innerHTML = LOGQ.join('<br>');
+}
 let landmarker = null;
 
 // ---------------- kamera & model ----------------
@@ -140,6 +148,7 @@ function setGesture(label, color) {
     g.style.textShadow = `0 0 16px ${color}`;
     g.classList.remove('on'); void g.offsetWidth; g.classList.add('on');
     S.gestureLabel = label;
+    clog('GESTURE <b>' + label + '</b>');
   }
   S.gestureT = S.t;
 }
@@ -190,6 +199,32 @@ function stepWorld(dt, fistPulls) {
   }
 }
 
+// ---------------- hujan digital (latar hacker, lembut) ----------------
+const GLYPHS = 'アイウエオカキクケコサシスセソタチツテト0123456789ABCDEF<>/#$+*=';
+let rainCv = null, rainCtx = null, rainDrops = null, rainW = 0, rainH = 0, rainTick = 0;
+function initRain() {
+  rainW = Math.ceil(W / 2); rainH = Math.ceil(H / 2);
+  rainCv = document.createElement('canvas'); rainCv.width = rainW; rainCv.height = rainH;
+  rainCtx = rainCv.getContext('2d');
+  rainCtx.fillStyle = '#020609'; rainCtx.fillRect(0, 0, rainW, rainH);
+  const cols = Math.ceil(rainW / 13);
+  rainDrops = Array.from({ length: cols }, () => Math.random() * rainH / 14);
+}
+function stepRain() {
+  if (!rainCv || rainCv.width !== Math.ceil(W / 2)) initRain();
+  if (rainTick++ % 2) return;                       // separuh frame-rate = hemat & tetap mulus
+  rainCtx.fillStyle = 'rgba(2,6,9,.12)'; rainCtx.fillRect(0, 0, rainW, rainH);
+  rainCtx.font = '12px "Share Tech Mono"';
+  for (let c = 0; c < rainDrops.length; c++) {
+    const x = c * 13, y = rainDrops[c] * 14;
+    rainCtx.fillStyle = 'rgba(140,255,180,.9)';
+    rainCtx.fillText(GLYPHS[(Math.random() * GLYPHS.length) | 0], x, y);
+    rainCtx.fillStyle = 'rgba(57,255,120,.35)';
+    rainCtx.fillText(GLYPHS[(Math.random() * GLYPHS.length) | 0], x, y - 14);
+    rainDrops[c] += .55 + (c % 5) * .09;
+    if (y > rainH && Math.random() < .03) rainDrops[c] = 0;
+  }
+}
 // ---------------- render ----------------
 function drawVideo() {
   if (S.camOn && video.videoWidth) {
@@ -202,16 +237,45 @@ function drawVideo() {
     const v = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * .34, W / 2, H / 2, Math.max(W, H) * .75);
     v.addColorStop(0, 'rgba(0,0,0,0)'); v.addColorStop(1, 'rgba(2,4,10,.55)');
     ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
+    if (rainCv) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .16; ctx.drawImage(rainCv, 0, 0, W, H); ctx.restore(); }
   } else {
     const g = ctx.createRadialGradient(W / 2, H * .3, 40, W / 2, H * .4, Math.max(W, H));
     g.addColorStop(0, '#0b1526'); g.addColorStop(1, '#04070e');
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    if (rainCv) { ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = .22; ctx.drawImage(rainCv, 0, 0, W, H); ctx.restore(); }
   }
   if (S.novaFlash > .01) { ctx.fillStyle = `rgba(255,244,214,${S.novaFlash * .5})`; ctx.fillRect(0, 0, W, H); }
 }
 function drawHandConstellation(h) {
   const lm = h.lm;
   ctx.save(); ctx.lineCap = 'round';
+  // cincin rune di pergelangan (hacker-sigil, ikut ukuran tangan)
+  const wr = h.size * .5;
+  ctx.save(); ctx.translate(lm[0].x, lm[0].y); ctx.rotate(S.t * .8);
+  ctx.strokeStyle = 'rgba(57,255,120,.4)'; ctx.lineWidth = 1; ctx.setLineDash([7, 9]);
+  ctx.beginPath(); ctx.arc(0, 0, wr, 0, 7); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(140,255,180,.75)'; ctx.font = '9px "Share Tech Mono"'; ctx.textAlign = 'center';
+  for (let g2 = 0; g2 < 4; g2++) {
+    const a2 = g2 / 4 * Math.PI * 2 + S.t * .8;
+    ctx.fillText(GLYPHS[(g2 * 7 + Math.floor(S.t * 2)) % GLYPHS.length], Math.cos(a2) * wr, Math.sin(a2) * wr + 3);
+  }
+  ctx.textAlign = 'left'; ctx.restore();
+  // animasi LOCK-ON saat tangan baru terdeteksi
+  const lt = lockAnim.get(h.key);
+  if (lt !== undefined && S.t - lt < .8) {
+    const k2 = (S.t - lt) / .8, R2 = h.size * (2.6 - 1.6 * k2);
+    const cx2 = (lm[0].x + lm[9].x) / 2, cyy = (lm[0].y + lm[9].y) / 2;
+    ctx.save(); ctx.translate(cx2, cyy); ctx.rotate(k2 * 1.2);
+    ctx.strokeStyle = `rgba(57,255,120,${.9 - k2 * .5})`; ctx.lineWidth = 1.6;
+    for (let q2 = 0; q2 < 4; q2++) { ctx.save(); ctx.rotate(q2 * Math.PI / 2); ctx.beginPath(); ctx.arc(0, 0, R2, -.4, .4); ctx.stroke(); ctx.restore(); }
+    ctx.fillStyle = `rgba(140,255,180,${.9 - k2 * .6})`; ctx.font = '10px "Share Tech Mono"';
+    ctx.fillText('LOCK ' + Math.min(100, Math.round(k2 * 140)) + '%', R2 * .74, -R2 * .74);
+    ctx.restore();
+  }
+  // koordinat telunjuk dalam HEX (targeting computer)
+  ctx.fillStyle = 'rgba(140,255,180,.8)'; ctx.font = '9.5px "Share Tech Mono"';
+  ctx.fillText('0x' + Math.max(0, Math.round(lm[8].x)).toString(16).toUpperCase().padStart(3, '0')
+    + ',0x' + Math.max(0, Math.round(lm[8].y)).toString(16).toUpperCase().padStart(3, '0'), lm[8].x + 13, lm[8].y - 11);
   ctx.strokeStyle = 'rgba(255,255,255,.30)'; ctx.lineWidth = 1;
   ctx.beginPath();
   for (const [a, b] of CONN) { ctx.moveTo(lm[a].x, lm[a].y); ctx.lineTo(lm[b].x, lm[b].y); }
@@ -271,6 +335,14 @@ function inkAdd(i, x, y, speed) {
   const last = ink.pts[ink.pts.length - 1];
   if (last && d2(last, { x, y }) < 3) return;
   const w = Math.max(1.6, 6.5 - speed * .09);                   // pelan = tebal (kaligrafi)
+  if (last) {                                                    // subdivisi: segmen jauh dihaluskan
+    const dd = d2(last, { x, y });
+    const steps = Math.min(6, Math.floor(dd / 14));
+    for (let st2 = 1; st2 <= steps; st2++) {
+      const t2 = st2 / (steps + 1);
+      ink.pts.push({ x: last.x + (x - last.x) * t2, y: last.y + (y - last.y) * t2, hue: S.hueBase, w });
+    }
+  }
   ink.pts.push({ x, y, hue: S.hueBase, w });
   if (Math.random() < .3) spawn(x, y, 1, S.hueBase, .8, .96, 1.6);
   let total = 0; for (const s of inks) total += s.pts.length;
@@ -413,19 +485,27 @@ function processHands(rawHands, keys) {
     const key = keys[i] || ('h' + i);
     const mapped = lms.map(p => mapPoint(p.x, p.y));
     let sm = smooth.get(key);
-    if (!sm || sm.length !== 21) sm = mapped.map(p => ({ ...p }));
-    else {
-      for (let k = 0; k < 21; k++) {                  // anti-jitter adaptif
-        const sp = d2(sm[k], mapped[k]);
-        const a = Math.max(.3, Math.min(.85, sp * .045));
-        sm[k].x += (mapped[k].x - sm[k].x) * a;
-        sm[k].y += (mapped[k].y - sm[k].y) * a;
-      }
+    if (!sm) {
+      sm = { p: mapped.map(p => ({ ...p })), v: mapped.map(() => ({ x: 0, y: 0 })) };
+      lockAnim.set(key, S.t); clog('HAND[' + key + '] LOCK · 21 nodes');
+    }
+    const lm = new Array(21);
+    for (let k = 0; k < 21; k++) {
+      // filter GESIT: diam = halus, bergerak = nyaris tanpa jeda…
+      const sp = d2(sm.p[k], mapped[k]);
+      const a = Math.min(1, .5 + sp * .09);
+      const nx = sm.p[k].x + (mapped[k].x - sm.p[k].x) * a;
+      const ny = sm.p[k].y + (mapped[k].y - sm.p[k].y) * a;
+      sm.v[k].x = sm.v[k].x * .5 + (nx - sm.p[k].x) * .5;
+      sm.v[k].y = sm.v[k].y * .5 + (ny - sm.p[k].y) * .5;
+      sm.p[k].x = nx; sm.p[k].y = ny;
+      // …plus PREDIKSI: efek sedikit MENDAHULUI jari (terasa menempel)
+      lm[k] = { x: nx + sm.v[k].x * .55, y: ny + sm.v[k].y * .55 };
     }
     smooth.set(key, sm);
-    return { key, lm: sm, ...analyzeHand(sm, i) };
+    return { key, lm, ...analyzeHand(lm, i) };
   });
-  for (const k of [...smooth.keys()]) if (!S.hands.some(h => h.key === k)) smooth.delete(k);
+  for (const k of [...smooth.keys()]) if (!S.hands.some(h => h.key === k)) { smooth.delete(k); lockAnim.delete(k); clog('HAND[' + k + '] SIGNAL LOST'); }
 
   const alive = new Set();
   S.hands.forEach((h, i) => TIPS.forEach(t => {
@@ -434,7 +514,7 @@ function processHands(rawHands, keys) {
     const last = arr[arr.length - 1];
     if (last && d2(last, h.lm[t]) > 170) arr.length = 0;
     arr.push({ x: h.lm[t].x, y: h.lm[t].y });
-    if (arr.length > 14) arr.shift();
+    if (arr.length > 18) arr.shift();
     trails.set(key, arr);
   }));
   for (const k of trails.keys()) if (!alive.has(k)) trails.delete(k);
@@ -454,10 +534,11 @@ function processHands(rawHands, keys) {
       const mid = { x: (h.lm[4].x + h.lm[8].x) / 2, y: (h.lm[4].y + h.lm[8].y) / 2 };
       if (!pinchSt[i]) pinchSt[i] = { x: mid.x, y: mid.y, charge: 0 };
       const o = pinchSt[i];
-      o.x += (mid.x - o.x) * .5; o.y += (mid.y - o.y) * .5;
+      o.x += (mid.x - o.x) * .75; o.y += (mid.y - o.y) * .75;
       o.charge = Math.min(1, o.charge + .014);
       label = 'MENCIPTA…'; lcolor = '#ffd98a';
     } else if (pinchSt[i]) {                           // lepas = kupu-kupu lahir
+      clog('SPAWN butterfly ×' + (1 + Math.round(pinchSt[i].charge * 2)));
       hatch(pinchSt[i].x, pinchSt[i].y, S.hueBase, 1 + Math.round(pinchSt[i].charge * 2));
       spawn(pinchSt[i].x, pinchSt[i].y, 24, S.hueBase, 3);
       rings.push({ x: pinchSt[i].x, y: pinchSt[i].y, r: 4, max: 70, hue: S.hueBase, w: 2 });
@@ -489,7 +570,7 @@ function processHands(rawHands, keys) {
         }
         if (!pts.length) inks.splice(s, 1);
       }
-    } else if (fists[i]) { nova(fists[i].x, fists[i].y, fists[i].charge); fists[i] = null; }
+    } else if (fists[i]) { clog('NOVA charge=' + fists[i].charge.toFixed(2)); nova(fists[i].x, fists[i].y, fists[i].charge); fists[i] = null; }
   });
   if (S.hands.length === 2 && !S.hands.some(h => h.gest === 'fist' || h.gest === 'pinch')) {
     label = 'BENANG AURORA'; lcolor = '#8affd9';       // 🙌
@@ -543,6 +624,7 @@ function loop(now) {
   }
   const fistPulls = processHands(raw, keys);
   stepWorld(dt, fistPulls);
+  stepRain();
 
   drawVideo();
   if (S.hands.length === 0 && S.running && butterflies.length === 0 && inks.length === 0) drawIdle();
@@ -576,8 +658,10 @@ async function begin(withCam) {
     if (!ok) { S.demo = true; el('bdemo').classList.add('on'); showBanner('kamera tidak tersedia / ditolak — berjalan di MODE DEMO'); }
   } else { S.demo = true; el('bdemo').classList.add('on'); }
   el('stat').textContent = '> memuat modul vision…';
+  clog('trace.core <b>init</b>'); clog('vision.wasm loading…');
   if (!S.demo) await initModel();
   else { el('hstat').textContent = 'DEMO'; initModel(); }
+  clog('vision.module <b>' + el('hstat').textContent + '</b>');
   el('intro').remove();
   S.running = true;
 }
