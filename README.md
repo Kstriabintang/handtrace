@@ -4,7 +4,7 @@
 
 ### Mode LUMEN — sihir cahaya real-time di browser: lukis di udara, ciptakan kupu-kupu, putar galaksi di telapakmu.
 
-**[▶ Coba Langsung](https://ksatriabintangsamudra.my.id/handtrace/)**
+**[▶ Coba Langsung](https://handtrace.ksatriabintangsamudra.com/)**
 
 </div>
 
@@ -39,4 +39,4 @@ python3 -m http.server 8080
 
 ---
 
-<div align="center"><sub><b>Ksatria Bintang Samudra</b> · <a href="https://ksatriabintangsamudra.my.id">ksatriabintangsamudra.my.id</a></sub></div>
+<div align="center"><sub><b>Ksatria Bintang Samudra</b> · <a href="https://ksatriabintangsamudra.com">ksatriabintangsamudra.com</a></sub></div>
